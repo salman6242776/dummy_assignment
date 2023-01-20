@@ -7,7 +7,7 @@ import '../../domain/repository/user_repository.dart';
 
 class UserRepositoryService implements UserRepository {
   @override
-  Future<http.Response> authenticateUser(UserModel userModel) async {
+  Future<bool> authenticateUser(UserModel userModel) async {
     var uri = Uri.https(BASE_URL, ApiEndpoints.login);
     var bodyObject = {
       ApiKeys.EMAIL: userModel.email,
@@ -16,6 +16,15 @@ class UserRepositoryService implements UserRepository {
     print('API $uri, request: $bodyObject');
     var response = await http.post(uri, body: bodyObject);
     print('API $uri, reponse: $response');
-    return response;
+    // if (response.statusCode == 200) {
+    //   return true;
+    // } else {
+    // if (userModel.email != WRONG_EMAIL) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+    // }
+    return userModel.email != WRONG_EMAIL;
   }
 }

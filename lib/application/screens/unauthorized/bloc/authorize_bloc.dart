@@ -22,20 +22,16 @@ class AuthorizeBloc extends Bloc<AuthorizeEvent, AuthorizeState> {
       AuthorizeUserEvent loginUserEvent, Emitter<AuthorizeState> emit) async {
     emit(AuthorizeStarted());
     try {
-      var response = await userRepositoryService
+      var isAuthorized = await userRepositoryService
           .authenticateUser(loginUserEvent.userModel);
 
-      if (response.statusCode == ApiStatusCode.success) {
+      if (isAuthorized) {
+        AppSharedPreference.add(USER_EMAIL, loginUserEvent.userModel.email);
+        AppSharedPreference.add(
+            USER_PASSWORD, loginUserEvent.userModel.password);
         emit(AuthorizeSuccessful());
       } else {
-        if (loginUserEvent.userModel.email == "error@gmail.com") {
-          emit(AuthorizeFailed());
-        } else {
-          AppSharedPreference.add(USER_EMAIL, loginUserEvent.userModel.email);
-          AppSharedPreference.add(
-              USER_PASSWORD, loginUserEvent.userModel.password);
-          emit(AuthorizeSuccessful());
-        }
+        emit(AuthorizeFailed());
       }
     } catch (ex) {
       if (loginUserEvent.userModel.email == "error@gmail.com") {
