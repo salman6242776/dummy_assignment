@@ -8,47 +8,16 @@ import 'package:dummy_assignment/data/model/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   static const String routeName = '/login-screen';
 
-  const LoginScreen({super.key});
+  LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final _form = GlobalKey<FormState>();
   var userModel = UserModel();
   // we can have TextEditingControllers as well and can have input in different objects. But I prefer to populate objects instantly.
   late AuthorizeBloc _loginBloc;
   // late StreamSubscription _loginBlockStream;
-
-  @override
-  void initState() {
-    _loginBloc = AuthorizeBloc();
-    // _loginBlockStream = _loginBloc.stream.listen((event) {
-    //   print(
-    //       "||||||||||***----------- Received Stream Callback -----------***|||||||||");
-    //   if (event is LoginAuthorizeSuccessful) {
-    //     print("*** LoginAuthorizeSuccessful ***");
-    //     ScaffoldMessenger.of(context)
-    //         .showSnackBar(const SnackBar(content: Text("Login SUCCESS!")));
-    //   } else if (event is LoginAuthorizeFailed) {
-    //     print("*** LoginAuthorizeFailed ***");
-    //     ScaffoldMessenger.of(context)
-    //         .showSnackBar(const SnackBar(content: Text("Login Failed!")));
-    //   }
-    // });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // _loginBlockStream.cancel();
-    _loginBloc.close();
-    super.dispose();
-  }
 
   void _onLoginClickListener() {
     if (_form.currentState?.validate() == true) {
@@ -56,16 +25,16 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Widget blockStreamReceiver(_, state) {
+  Widget blockStreamReceiver(context, state) {
     print("***----------- Received BUILD Callback -----------***");
     if (state is AuthorizeStarted) {
       print("*** LoginAuthorizeStarted ***");
       return const Center(child: CircularProgressIndicator());
     } else if (state is AuthorizeSuccessful) {
-      onLoginSuccess();
+      onLoginSuccess(context);
     } else if (state is AuthorizeFailed) {
       print("*** LoginAuthorizeFailed ***");
-      showSnackBar("Login Failed!");
+      showSnackBar(context, "Login Failed!");
     }
     print("*** EMPTYYYYY ***");
     return ElevatedButton(
@@ -74,14 +43,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void onLoginSuccess() {
+  void onLoginSuccess(BuildContext context) {
     print("*** LoginAuthorizeSuccessful ***");
-    showSnackBar("Login SUCCESS!");
+    showSnackBar(context, "Login SUCCESS!");
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         Navigator.of(context).popAndPushNamed(DashboardScreen.routeName));
   }
 
-  void showSnackBar(String message) {
+  void showSnackBar(BuildContext context, String message) {
     WidgetsBinding.instance.addPostFrameCallback((_) =>
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(message))));
@@ -89,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _loginBloc = AuthorizeBloc();
     print("***////// BUILD ***///////////");
     return Scaffold(
       appBar: AppBar(
